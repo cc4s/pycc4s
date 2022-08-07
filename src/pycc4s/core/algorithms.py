@@ -247,6 +247,61 @@ class CoupledClusterAlgo(BaseAlgo):
         amplitudes: str
 
 
+class FiniteSizeCorrectionAlgo(BaseAlgo):
+    """FiniteSizeCorrection algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of FiniteSizeCorrection algorithm."""
+
+        amplitudes: str
+        coulombPotential: str
+        slicedCoulombVertex: str
+        coulombVertexSingularVectors: str
+        gridVectors: str
+        interpolationGridSize: int
+
+    class Output(BaseModel):
+        """Schema for output of FiniteSizeCorrection algorithm."""
+
+        transitionStructureFactor: str
+
+
+class BasisSetCorrectionAlgo(BaseAlgo):
+    """BasisSetCorrection algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of BasisSetCorrection algorithm."""
+
+        amplitudes: str
+        coulombIntegrals: str
+        slicedEigenEnergies: str
+        mp2PairEnergies: str
+        deltaIntegralsHH: str
+        deltaIntegralsPPHH: str
+
+
+class PerturbativeTriplesAlgo(BaseAlgo):
+    """PerturbativeTriples algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of PerturbativeTriples algorithm."""
+
+        amplitudes: str
+        coulombIntegrals: str
+        slicedEigenEnergies: str
+        mp2PairEnergies: str
+
+
+class SecondOrderPerturbationTheoryAlgo(BaseAlgo):
+    """SecondOrderPerturbationTheory algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of SecondOrderPerturbationTheory algorithm."""
+
+        coulombIntegrals: str
+        slicedEigenEnergies: str
+
+
 _ALGOS = {
     "Read": ReadAlgo,
     "Write": WriteAlgo,
@@ -254,6 +309,9 @@ _ALGOS = {
     "SliceOperator": SliceOperatorAlgo,
     "VertexCoulombIntegrals": VertexCoulombIntegralsAlgo,
     "CoupledCluster": CoupledClusterAlgo,
+    "FiniteSizeCorrection": FiniteSizeCorrectionAlgo,
+    "BasisSetCorrection": BasisSetCorrectionAlgo,
+    "PerturbativeTriples": PerturbativeTriplesAlgo,
 }
 
 
