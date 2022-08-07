@@ -1,5 +1,6 @@
 """Algorithms in CC4S."""
 from importlib import import_module
+from typing import Optional
 
 import yaml  # type: ignore
 from monty.json import MSONable
@@ -226,11 +227,11 @@ class CoupledClusterAlgo(BaseAlgo):
             """Schema for mixer parameters in amplitude equations solver."""
 
             type: str
-            maxResidua: int
-            ratio: float
+            maxResidua: Optional[int]
+            ratio: Optional[float]
 
         method: str
-        linearized: int
+        linearized: Optional[int]
         integralsSliceSize: int
         slicedEigenEnergies: str
         coulombIntegrals: str
@@ -239,7 +240,7 @@ class CoupledClusterAlgo(BaseAlgo):
         energyConvergence: str
         amplitudesConvergence: str
         mixer: MixerModel
-        initialAmplitudes: str
+        initialAmplitudes: Optional[str]
 
     class Output(BaseModel):
         """Schema for output of CoupledCluster algorithm."""
@@ -258,7 +259,7 @@ class FiniteSizeCorrectionAlgo(BaseAlgo):
         slicedCoulombVertex: str
         coulombVertexSingularVectors: str
         gridVectors: str
-        interpolationGridSize: int
+        interpolationGridSize: Optional[int]
 
     class Output(BaseModel):
         """Schema for output of FiniteSizeCorrection algorithm."""
