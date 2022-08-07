@@ -173,8 +173,88 @@ class WriteAlgo(BaseAlgo):
         source: str
 
 
-_ALGOS = {"Read": ReadAlgo, "Write": WriteAlgo}
-_ALGOS_CLSES = {algo_cls.__name__: algo_cls for _, algo_cls in _ALGOS.items()}
+class DefineHolesAndParticlesAlgo(BaseAlgo):
+    """DefineHolesAndParticles algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of DefineHolesAndParticles algorithm."""
+
+        eigenEnergies: str
+
+    class Output(BaseModel):
+        """Schema for output of DefineHolesAndParticles algorithm."""
+
+        slicedEigenEnergies: str
+
+
+class SliceOperatorAlgo(BaseAlgo):
+    """SliceOperator algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of SliceOperator algorithm."""
+
+        slicedEigenEnergies: str
+        operator: str
+
+    class Output(BaseModel):
+        """Schema for output of SliceOperator algorithm."""
+
+        slicedOperator: str
+
+
+class VertexCoulombIntegralsAlgo(BaseAlgo):
+    """VertexCoulombIntegrals algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of VertexCoulombIntegrals algorithm."""
+
+        slicedCoulombVertex: str
+
+    class Output(BaseModel):
+        """Schema for output of VertexCoulombIntegrals algorithm."""
+
+        coulombIntegrals: str
+
+
+class CoupledClusterAlgo(BaseAlgo):
+    """CoupledCluster algorithm for CC4S."""
+
+    class Input(BaseModel):
+        """Schema for input of CoupledCluster algorithm."""
+
+        class MixerModel(BaseModel):
+            """Schema for mixer parameters in amplitude equations solver."""
+
+            type: str
+            maxResidua: int
+            ratio: float
+
+        method: str
+        linearized: int
+        integralsSliceSize: int
+        slicedEigenEnergies: str
+        coulombIntegrals: str
+        slicedCoulombVertex: str
+        maxIterations: int
+        energyConvergence: str
+        amplitudesConvergence: str
+        mixer: MixerModel
+        initialAmplitudes: str
+
+    class Output(BaseModel):
+        """Schema for output of CoupledCluster algorithm."""
+
+        amplitudes: str
+
+
+_ALGOS = {
+    "Read": ReadAlgo,
+    "Write": WriteAlgo,
+    "DefineHolesAndParticles": DefineHolesAndParticlesAlgo,
+    "SliceOperator": SliceOperatorAlgo,
+    "VertexCoulombIntegrals": VertexCoulombIntegralsAlgo,
+    "CoupledCluster": CoupledClusterAlgo,
+}
 
 
 def get_algo(d):
