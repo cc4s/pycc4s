@@ -112,6 +112,59 @@ class BaseAlgo(MSONable, BaseModel):
             dumpfn(d, fname)
 
 
+class Object(str):
+    """Class for objects used by the algorithms.
+
+    Subclasses of this object are used to define the actual objects.
+    These are then used to clarify inputs and outputs of the algorithms
+    and how the algorithms can be sequenced.
+    """
+
+
+class Amplitudes(Object):
+    """Object class for Amplitudes."""
+
+
+class CoulombIntegrals(Object):
+    """Object class for Coulomb integrals."""
+
+
+class CoulombPotential(Object):
+    """Object class for Coulomb potential."""
+
+
+class CoulombVertex(Object):
+    """Object class for Coulomb vertex."""
+
+
+class CoulombVertexSingularVectors(Object):
+    """Object class for Coulomb vertex singular vectors."""
+
+
+class DeltaIntegrals(Object):
+    """Object class for Delta integrals."""
+
+
+class EigenEnergies(Object):
+    """Object class for eigen energies."""
+
+
+class GridVectors(Object):
+    """Object class for grid vectors."""
+
+
+class Mp2PairEnergies(Object):
+    """Object class for Mp2 pair energies."""
+
+
+class SlicedCoulombVertex(Object):
+    """Object class for sliced Coulomb vertex."""
+
+
+class SlicedEigenEnergies(Object):
+    """Object class for sliced eigen energies."""
+
+
 class FName(str):
     """Class for filename.
 
