@@ -1,5 +1,6 @@
 """Algorithms in CC4S."""
 from importlib import import_module
+from pathlib import Path
 from typing import Optional
 
 import yaml  # type: ignore
@@ -13,8 +14,8 @@ class BaseAlgo(MSONable, BaseModel):
     """Base class for CC4S algorithms."""
 
     name: str
-    input: dict
-    output: dict
+    input: BaseModel
+    output: BaseModel
 
     def __init_subclass__(cls, *args, **kwargs):
         """Modify fields for algorithm subclass.
@@ -120,6 +121,21 @@ class Object(str):
     and how the algorithms can be sequenced.
     """
 
+    def __str__(self):
+        """Return a string representation of the Object."""
+        return f'Object of type "{self.__class__.__name__}": {self.object_name()}'
+
+    def object_name(self):
+        """Return the name of the Object."""
+        return super().__str__()
+
+    def __eq__(self, other):
+        """Test equality with respect to another Object."""
+        return (
+            self.__class__ == other.__class__
+            and self.object_name() == other.object_name()
+        )
+
 
 class Amplitudes(Object):
     """Object class for Amplitudes."""
@@ -165,6 +181,11 @@ class SlicedEigenEnergies(Object):
     """Object class for sliced eigen energies."""
 
 
+# TODO: check here that structure factors are all the same objects
+class StructureFactors(Object):
+    """Object class for structure factors."""
+
+
 class FName(str):
     """Class for filename.
 
@@ -174,18 +195,24 @@ class FName(str):
     """
 
 
-class FNameModel(BaseModel):
-    """File name pydantic model."""
+class InOutModel(BaseModel):
+    """Base pydantic model for inputs and outputs."""
 
-    fileName: FName
-
-    @validator("fileName")
-    def with_double_quotes(cls, v):
+    @validator("*")
+    def str_validation(cls, v, field):
         """Remove the double quotes if present and cast to the FName object."""
-        string = v.strip('"')
-        if '"' in string:
-            raise ValueError('Filename cannot contain double-quote (") character')
-        return FName(string)
+        if not isinstance(v, str):
+            return v
+
+        if field.type_ == FName:
+            string = v.strip('"')
+            if '"' in string:
+                raise ValueError('Filename cannot contain double-quote (") character')
+            return FName(string)
+        elif issubclass(field.type_, Object):
+            return field.type_(v)
+
+        return v
 
 
 class MyDumper(yaml.Dumper):
@@ -209,71 +236,91 @@ class MyDumper(yaml.Dumper):
 class ReadAlgo(BaseAlgo):
     """Read algorithm for CC4S."""
 
-    class Input(FNameModel):
+    class Input(InOutModel):
         """Schema for input of Read algorithm."""
 
-    class Output(BaseModel):
+        fileName: FName
+        object_type: Optional[str]
+
+    class Output(InOutModel):
         """Schema for output of Read algorithm."""
 
+        # Here we assume destination is a str
         destination: str
+
+    @validator("output")
+    def destination_object(cls, v, values):
+        """Get the correct Object based on the filename."""
+        fname = values["input"].fileName
+        v.destination = get_object(fname, v.destination)
+        return v
 
 
 class WriteAlgo(BaseAlgo):
     """Write algorithm for CC4S."""
 
-    class Input(FNameModel):
+    class Input(InOutModel):
         """Schema for input of Write algorithm."""
 
+        # TODO: deal with filename based on source type here
         source: str
+
+    class Output(InOutModel):
+        """Schema for output of Write algorithm."""
+
+        # TODO: deal with filename based on source type here
+        fileName: FName
 
 
 class DefineHolesAndParticlesAlgo(BaseAlgo):
     """DefineHolesAndParticles algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of DefineHolesAndParticles algorithm."""
 
-        eigenEnergies: str
+        eigenEnergies: EigenEnergies
 
-    class Output(BaseModel):
+    class Output(InOutModel):
         """Schema for output of DefineHolesAndParticles algorithm."""
 
-        slicedEigenEnergies: str
+        slicedEigenEnergies: SlicedEigenEnergies
 
 
 class SliceOperatorAlgo(BaseAlgo):
     """SliceOperator algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of SliceOperator algorithm."""
 
-        slicedEigenEnergies: str
-        operator: str
+        slicedEigenEnergies: SlicedEigenEnergies
+        # TODO: check here: is it always a CoulombVertex object ?
+        operator: CoulombVertex
 
-    class Output(BaseModel):
+    class Output(InOutModel):
         """Schema for output of SliceOperator algorithm."""
 
-        slicedOperator: str
+        # TODO: check here: is it always a SlicedCoulombVertex object ?
+        slicedOperator: SlicedCoulombVertex
 
 
 class VertexCoulombIntegralsAlgo(BaseAlgo):
     """VertexCoulombIntegrals algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of VertexCoulombIntegrals algorithm."""
 
-        slicedCoulombVertex: str
+        slicedCoulombVertex: CoulombVertex
 
-    class Output(BaseModel):
+    class Output(InOutModel):
         """Schema for output of VertexCoulombIntegrals algorithm."""
 
-        coulombIntegrals: str
+        coulombIntegrals: CoulombIntegrals
 
 
 class CoupledClusterAlgo(BaseAlgo):
     """CoupledCluster algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of CoupledCluster algorithm."""
 
         class MixerModel(BaseModel):
@@ -286,74 +333,74 @@ class CoupledClusterAlgo(BaseAlgo):
         method: str
         linearized: Optional[int]
         integralsSliceSize: int
-        slicedEigenEnergies: str
-        coulombIntegrals: str
-        slicedCoulombVertex: str
+        slicedEigenEnergies: SlicedEigenEnergies
+        coulombIntegrals: CoulombIntegrals
+        slicedCoulombVertex: SlicedCoulombVertex
         maxIterations: int
         energyConvergence: str
         amplitudesConvergence: str
         mixer: MixerModel
-        initialAmplitudes: Optional[str]
+        initialAmplitudes: Optional[Amplitudes]
 
-    class Output(BaseModel):
+    class Output(InOutModel):
         """Schema for output of CoupledCluster algorithm."""
 
-        amplitudes: str
+        amplitudes: Amplitudes
 
 
 class FiniteSizeCorrectionAlgo(BaseAlgo):
     """FiniteSizeCorrection algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of FiniteSizeCorrection algorithm."""
 
-        amplitudes: str
-        coulombPotential: str
-        slicedCoulombVertex: str
-        coulombVertexSingularVectors: str
-        gridVectors: str
+        amplitudes: Amplitudes
+        coulombPotential: CoulombPotential
+        slicedCoulombVertex: SlicedCoulombVertex
+        coulombVertexSingularVectors: CoulombVertexSingularVectors
+        gridVectors: GridVectors
         interpolationGridSize: Optional[int]
 
-    class Output(BaseModel):
+    class Output(InOutModel):
         """Schema for output of FiniteSizeCorrection algorithm."""
 
-        transitionStructureFactor: str
+        transitionStructureFactor: StructureFactors
 
 
 class BasisSetCorrectionAlgo(BaseAlgo):
     """BasisSetCorrection algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of BasisSetCorrection algorithm."""
 
-        amplitudes: str
-        coulombIntegrals: str
-        slicedEigenEnergies: str
-        mp2PairEnergies: str
-        deltaIntegralsHH: str
-        deltaIntegralsPPHH: str
+        amplitudes: Amplitudes
+        coulombIntegrals: CoulombIntegrals
+        slicedEigenEnergies: SlicedEigenEnergies
+        mp2PairEnergies: Mp2PairEnergies
+        deltaIntegralsHH: DeltaIntegrals
+        deltaIntegralsPPHH: DeltaIntegrals
 
 
 class PerturbativeTriplesAlgo(BaseAlgo):
     """PerturbativeTriples algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of PerturbativeTriples algorithm."""
 
-        amplitudes: str
-        coulombIntegrals: str
-        slicedEigenEnergies: str
-        mp2PairEnergies: str
+        amplitudes: Amplitudes
+        coulombIntegrals: CoulombIntegrals
+        slicedEigenEnergies: SlicedEigenEnergies
+        mp2PairEnergies: Mp2PairEnergies
 
 
 class SecondOrderPerturbationTheoryAlgo(BaseAlgo):
     """SecondOrderPerturbationTheory algorithm for CC4S."""
 
-    class Input(BaseModel):
+    class Input(InOutModel):
         """Schema for input of SecondOrderPerturbationTheory algorithm."""
 
-        coulombIntegrals: str
-        slicedEigenEnergies: str
+        coulombIntegrals: CoulombIntegrals
+        slicedEigenEnergies: SlicedEigenEnergies
 
 
 _ALGOS = {
@@ -366,6 +413,7 @@ _ALGOS = {
     "FiniteSizeCorrection": FiniteSizeCorrectionAlgo,
     "BasisSetCorrection": BasisSetCorrectionAlgo,
     "PerturbativeTriples": PerturbativeTriplesAlgo,
+    "SecondOrderPerturbationTheory": SecondOrderPerturbationTheoryAlgo,
 }
 
 
@@ -373,3 +421,16 @@ def get_algo(d):
     """Get algorithm from dictionary."""
     cls_ = _ALGOS[d["name"]]
     return cls_(name=d["name"], input=d["in"], output=d["out"])
+
+
+_OBJECTS = {cls.__name__: cls for cls in Object.__subclasses__()}
+_OBJECTS["DeltaIntegralsHH"] = DeltaIntegrals
+_OBJECTS["DeltaIntegralsPPHH"] = DeltaIntegrals
+
+
+def get_object(filename, destination):
+    """Get object from string."""
+    fpath = Path(filename)
+    fpath = fpath.with_suffix("")
+    cls_ = _OBJECTS[fpath.name]
+    return cls_(destination)
