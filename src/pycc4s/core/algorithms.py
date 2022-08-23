@@ -156,9 +156,9 @@ class Object(str):
     and how the algorithms can be sequenced.
     """
 
-    def __str__(self):
-        """Return a string representation of the Object."""
-        return f'Object of type "{self.__class__.__name__}": {self.object_name()}'
+    # def __str__(self):
+    #     """Return a string representation of the Object."""
+    #     return f'Object of type "{self.__class__.__name__}": {self.object_name()}'
 
     def object_name(self):
         """Return the name of the Object."""
@@ -290,6 +290,17 @@ class ReadAlgo(BaseAlgo):
         v.destination = get_object(fname, v.destination, values["input"].object_type)
         return v
 
+    @classmethod
+    def from_filename(cls, filename):
+        """Construct ReadAlgo from filename."""
+        fpath = Path(filename).with_suffix("")
+        return cls(input={"fileName": filename}, output={"destination": fpath.name})
+
+    @property
+    def filename(self):
+        """Get the filename."""
+        return self.input.fileName
+
 
 class WriteAlgo(BaseAlgo):
     """Write algorithm for CC4S."""
@@ -306,6 +317,13 @@ class WriteAlgo(BaseAlgo):
         # TODO: deal with filename based on source type here
         fileName: FName
 
+    @classmethod
+    def from_object(cls, object_name):
+        """Construct WriteAlgo from Object name."""
+        return cls(
+            input={"source": object_name}, output={"fileName": f"{object_name}.yaml"}
+        )
+
 
 class DefineHolesAndParticlesAlgo(BaseAlgo):
     """DefineHolesAndParticles algorithm for CC4S."""
@@ -319,6 +337,14 @@ class DefineHolesAndParticlesAlgo(BaseAlgo):
         """Schema for output of DefineHolesAndParticles algorithm."""
 
         slicedEigenEnergies: SlicedEigenEnergies
+
+    @classmethod
+    def default(cls):
+        """Construct default DefineHolesAndParticlesAlgo with standard Object names."""
+        return cls(
+            input={"eigenEnergies": "EigenEnergies"},
+            output={"slicedEigenEnergies": "SlicedEigenEnergies"},
+        )
 
 
 class SliceOperatorAlgo(BaseAlgo):
@@ -466,10 +492,10 @@ _OBJECTS["DeltaIntegralsHH"] = DeltaIntegrals
 _OBJECTS["DeltaIntegralsPPHH"] = DeltaIntegrals
 
 
-def get_object(filename, destination, object_type=None):
+def get_object(filename_or_string, destination, object_type=None):
     """Get object from filename or string or a given type of Object."""
     cls_ = _OBJECTS.get(object_type, None)
-    fpath = Path(filename)
+    fpath = Path(filename_or_string)
     fpath = fpath.with_suffix("")
     cls_from_fpath = _OBJECTS.get(fpath.name, None)
     if cls_ is None:

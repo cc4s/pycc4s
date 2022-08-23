@@ -82,6 +82,7 @@ class TestAlgorithms:
             output={"destination": "tada"},
         )
         assert isinstance(algo.input, ReadAlgo.Input)
+        assert isinstance(algo.input.fileName, FName)
         assert isinstance(algo.output.destination, CoulombVertex)
         assert algo.output.destination.object_name() == "tada"
         with pytest.raises(AlgorithmInitializationError):
@@ -118,6 +119,11 @@ class TestAlgorithms:
         assert errors[0]["type"] == "value_error.const"
         assert errors[0]["ctx"] == {"given": "somename", "permitted": ["Read"]}
 
+        algo = ReadAlgo.from_filename("SlicedCoulombVertex.yaml")
+        assert algo.input.fileName == "SlicedCoulombVertex.yaml"
+        assert isinstance(algo.output.destination, SlicedCoulombVertex)
+        assert algo.output.destination.object_name() == "SlicedCoulombVertex"
+
     def test_write_algo(self):
         algo = WriteAlgo(
             input={"source": "CV"},
@@ -130,13 +136,15 @@ class TestAlgorithms:
 
     def test_define_holes_and_particles_algo(self):
         algo = DefineHolesAndParticlesAlgo(
-            input={"eigenEnergies": "EigenEnergies"},
-            output={"slicedEigenEnergies": "EigenEnergies"},
+            input={"eigenEnergies": "EE"},
+            output={"slicedEigenEnergies": "SEE"},
         )
         assert isinstance(algo.input, DefineHolesAndParticlesAlgo.Input)
         assert isinstance(algo.input.eigenEnergies, EigenEnergies)
         assert isinstance(algo.output.slicedEigenEnergies, SlicedEigenEnergies)
         assert algo.name == "DefineHolesAndParticles"
+        algo = DefineHolesAndParticlesAlgo.default()
+        assert algo.input.eigenEnergies.object_name() == "EigenEnergies"
 
     def test_slice_operator_algo(self):
         algo = SliceOperatorAlgo(
@@ -273,3 +281,24 @@ class TestAlgorithms:
         assert isinstance(algo.input.slicedEigenEnergies, SlicedEigenEnergies)
         assert algo.input.slicedEigenEnergies.object_name() == "SEE"
         assert algo.output == {}
+
+    def test_algorithm_equality(self):
+        algo1 = algo1bis = ReadAlgo(
+            name="Read",
+            input={"fileName": "CoulombVertex.yaml"},
+            output={"destination": "tada"},
+        )
+        algo2 = ReadAlgo(
+            name="Read",
+            input={"fileName": "CoulombVertex.yaml"},
+            output={"destination": "tada"},
+        )
+        algo3 = ReadAlgo(
+            name="Read",
+            input={"fileName": "CoulombVertex.yaml"},
+            output={"destination": "tada2"},
+        )
+        assert algo1 == algo2
+        assert algo1 != algo3
+        assert algo1 is not algo2
+        assert algo1 is algo1bis
