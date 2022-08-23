@@ -344,7 +344,9 @@ class VertexCoulombIntegralsAlgo(BaseAlgo):
     class Input(InOutModel):
         """Schema for input of VertexCoulombIntegrals algorithm."""
 
-        slicedCoulombVertex: CoulombVertex
+        # TODO: check here: is it necessarily a SlicedCoulombVertex or
+        #  can it be a "standard" CoulombVertex here ?
+        slicedCoulombVertex: SlicedCoulombVertex
 
     class Output(InOutModel):
         """Schema for output of VertexCoulombIntegrals algorithm."""
@@ -372,8 +374,8 @@ class CoupledClusterAlgo(BaseAlgo):
         coulombIntegrals: CoulombIntegrals
         slicedCoulombVertex: SlicedCoulombVertex
         maxIterations: int
-        energyConvergence: str
-        amplitudesConvergence: str
+        energyConvergence: float
+        amplitudesConvergence: float
         mixer: MixerModel
         initialAmplitudes: Optional[Amplitudes]
 

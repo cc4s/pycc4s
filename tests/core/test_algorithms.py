@@ -5,18 +5,27 @@ from pycc4s.core.algorithms import (
     _ALGOS,
     AlgorithmInitializationError,
     AlgorithmInitializationWarning,
+    Amplitudes,
     BasisSetCorrectionAlgo,
+    CoulombIntegrals,
+    CoulombPotential,
     CoulombVertex,
+    CoulombVertexSingularVectors,
     CoupledClusterAlgo,
     DefineHolesAndParticlesAlgo,
+    DeltaIntegrals,
     EigenEnergies,
     FiniteSizeCorrectionAlgo,
     FName,
+    GridVectors,
+    Mp2PairEnergies,
     PerturbativeTriplesAlgo,
     ReadAlgo,
     SecondOrderPerturbationTheoryAlgo,
+    SlicedCoulombVertex,
     SlicedEigenEnergies,
     SliceOperatorAlgo,
+    StructureFactors,
     VertexCoulombIntegralsAlgo,
     WriteAlgo,
 )
@@ -128,3 +137,139 @@ class TestAlgorithms:
         assert isinstance(algo.input.eigenEnergies, EigenEnergies)
         assert isinstance(algo.output.slicedEigenEnergies, SlicedEigenEnergies)
         assert algo.name == "DefineHolesAndParticles"
+
+    def test_slice_operator_algo(self):
+        algo = SliceOperatorAlgo(
+            input={"slicedEigenEnergies": "EE", "operator": "CV"},
+            output={"slicedOperator": "SCV"},
+        )
+        assert isinstance(algo.input.slicedEigenEnergies, SlicedEigenEnergies)
+        assert algo.input.slicedEigenEnergies.object_name() == "EE"
+        assert isinstance(algo.input.operator, CoulombVertex)
+        assert algo.input.operator.object_name() == "CV"
+        assert isinstance(algo.output.slicedOperator, SlicedCoulombVertex)
+        assert algo.output.slicedOperator.object_name() == "SCV"
+
+    def test_vertex_coulomb_integrals_algo(self):
+        algo = VertexCoulombIntegralsAlgo(
+            input={"slicedCoulombVertex": "SCV"}, output={"coulombIntegrals": "CI"}
+        )
+        assert isinstance(algo.input.slicedCoulombVertex, SlicedCoulombVertex)
+        assert algo.input.slicedCoulombVertex.object_name() == "SCV"
+        assert isinstance(algo.output.coulombIntegrals, CoulombIntegrals)
+        assert algo.output.coulombIntegrals.object_name() == "CI"
+
+    def test_coupled_cluster_algo(self):
+        algo = CoupledClusterAlgo(
+            input={
+                "method": "Ccsd",
+                "integralsSliceSize": 100,
+                "slicedEigenEnergies": "SEE",
+                "coulombIntegrals": "CI",
+                "slicedCoulombVertex": "SCV",
+                "maxIterations": 30,
+                "energyConvergence": 1.0e-8,
+                "amplitudesConvergence": 1.0e-8,
+                "mixer": {"type": "DiisMixer", "maxResidua": 4},
+            },
+            output={"amplitudes": "amp"},
+        )
+        assert isinstance(algo.input.slicedCoulombVertex, SlicedCoulombVertex)
+        assert algo.input.slicedCoulombVertex.object_name() == "SCV"
+        assert isinstance(algo.input.slicedEigenEnergies, SlicedEigenEnergies)
+        assert algo.input.slicedEigenEnergies.object_name() == "SEE"
+        assert isinstance(algo.input.coulombIntegrals, CoulombIntegrals)
+        assert algo.input.coulombIntegrals.object_name() == "CI"
+        assert isinstance(algo.output.amplitudes, Amplitudes)
+        assert algo.output.amplitudes.object_name() == "amp"
+
+    def test_finite_size_correction_algo(self):
+        algo = FiniteSizeCorrectionAlgo(
+            input={
+                "amplitudes": "amp",
+                "coulombPotential": "CP",
+                "slicedCoulombVertex": "SCV",
+                "coulombVertexSingularVectors": "CVSV",
+                "gridVectors": "GV",
+                "interpolationGridSize": 100,
+            },
+            output={"transitionStructureFactor": "TSF"},
+        )
+
+        assert isinstance(algo.input.amplitudes, Amplitudes)
+        assert algo.input.amplitudes.object_name() == "amp"
+        assert isinstance(algo.input.coulombPotential, CoulombPotential)
+        assert algo.input.coulombPotential.object_name() == "CP"
+        assert isinstance(algo.input.slicedCoulombVertex, SlicedCoulombVertex)
+        assert algo.input.slicedCoulombVertex.object_name() == "SCV"
+        assert isinstance(
+            algo.input.coulombVertexSingularVectors, CoulombVertexSingularVectors
+        )
+        assert algo.input.coulombVertexSingularVectors.object_name() == "CVSV"
+        assert isinstance(algo.input.gridVectors, GridVectors)
+        assert algo.input.gridVectors.object_name() == "GV"
+        assert isinstance(algo.output.transitionStructureFactor, StructureFactors)
+        assert algo.output.transitionStructureFactor.object_name() == "TSF"
+
+    def test_basis_set_correction_algo(self):
+        algo = BasisSetCorrectionAlgo(
+            input={
+                "amplitudes": "amp",
+                "coulombIntegrals": "CI",
+                "slicedEigenEnergies": "SEE",
+                "mp2PairEnergies": "MP2PE",
+                "deltaIntegralsHH": "DIHH",
+                "deltaIntegralsPPHH": "DIPPHH",
+            },
+            output={},
+        )
+
+        assert isinstance(algo.input.amplitudes, Amplitudes)
+        assert algo.input.amplitudes.object_name() == "amp"
+        assert isinstance(algo.input.coulombIntegrals, CoulombIntegrals)
+        assert algo.input.coulombIntegrals.object_name() == "CI"
+        assert isinstance(algo.input.slicedEigenEnergies, SlicedEigenEnergies)
+        assert algo.input.slicedEigenEnergies.object_name() == "SEE"
+        assert isinstance(algo.input.mp2PairEnergies, Mp2PairEnergies)
+        assert algo.input.mp2PairEnergies.object_name() == "MP2PE"
+        assert isinstance(algo.input.deltaIntegralsHH, DeltaIntegrals)
+        assert algo.input.deltaIntegralsHH.object_name() == "DIHH"
+        assert isinstance(algo.input.deltaIntegralsPPHH, DeltaIntegrals)
+        assert algo.input.deltaIntegralsPPHH.object_name() == "DIPPHH"
+        assert algo.output == {}
+
+    def test_perturbative_triples_algo(self):
+        algo = PerturbativeTriplesAlgo(
+            input={
+                "amplitudes": "amp",
+                "coulombIntegrals": "CI",
+                "slicedEigenEnergies": "SEE",
+                "mp2PairEnergies": "MP2PE",
+            },
+            output={},
+        )
+
+        assert isinstance(algo.input.amplitudes, Amplitudes)
+        assert algo.input.amplitudes.object_name() == "amp"
+        assert isinstance(algo.input.coulombIntegrals, CoulombIntegrals)
+        assert algo.input.coulombIntegrals.object_name() == "CI"
+        assert isinstance(algo.input.slicedEigenEnergies, SlicedEigenEnergies)
+        assert algo.input.slicedEigenEnergies.object_name() == "SEE"
+        assert isinstance(algo.input.mp2PairEnergies, Mp2PairEnergies)
+        assert algo.input.mp2PairEnergies.object_name() == "MP2PE"
+        assert algo.output == {}
+
+    def test_second_order_perturbation_theory_algo(self):
+        algo = SecondOrderPerturbationTheoryAlgo(
+            input={
+                "coulombIntegrals": "CI",
+                "slicedEigenEnergies": "SEE",
+            },
+            output={},
+        )
+
+        assert isinstance(algo.input.coulombIntegrals, CoulombIntegrals)
+        assert algo.input.coulombIntegrals.object_name() == "CI"
+        assert isinstance(algo.input.slicedEigenEnergies, SlicedEigenEnergies)
+        assert algo.input.slicedEigenEnergies.object_name() == "SEE"
+        assert algo.output == {}
