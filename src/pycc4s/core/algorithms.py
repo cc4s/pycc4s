@@ -1,4 +1,5 @@
 """Algorithms in CC4S."""
+import warnings
 from importlib import import_module
 from pathlib import Path
 from typing import Optional
@@ -6,16 +7,42 @@ from typing import Optional
 import yaml  # type: ignore
 from monty.json import MSONable
 from monty.serialization import dumpfn
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
+from pydantic.config import BaseConfig
 from pydantic.fields import ModelField
+
+
+class AlgorithmError(Exception):
+    """Base exception for algorithms."""
+
+
+class AlgorithmInitializationError(AlgorithmError):
+    """Exception raised when initialization of an algorithm fails."""
+
+
+class AlgorithmWarning(Warning):
+    """Base warning for algorithms."""
+
+
+class AlgorithmInitializationWarning(Warning):
+    """Base warning for initialization of an algorithm."""
 
 
 class BaseAlgo(MSONable, BaseModel):
     """Base class for CC4S algorithms."""
 
-    name: str
+    name: str = Field(default="", const=True, allow_mutation=False)
     input: BaseModel
     output: BaseModel
+
+    class Config(BaseConfig):
+        """Config for the model.
+
+        The validate_assignment allows to prevent assignment of immutable fields, here
+        the name field of the subclasses.
+        """
+
+        validate_assignment = True
 
     def __init_subclass__(cls, *args, **kwargs):
         """Modify fields for algorithm subclass.
@@ -55,6 +82,14 @@ class BaseAlgo(MSONable, BaseModel):
                 field_info=prev_output_field.field_info,
             )
             cls.__fields__["output"] = output_field
+        cls_name = cls.__name__
+        if not cls_name.endswith("Algo"):
+            raise NameError(
+                'Algorithm class names should end with "Algo", e.g. ReadAlgo.'
+            )
+        algo_name = cls_name[:-4]
+        name_field = cls.__fields__["name"]
+        name_field.default = algo_name
         super().__init_subclass__(*args, **kwargs)
 
     def dict(self, *args, **kwargs):
@@ -252,7 +287,7 @@ class ReadAlgo(BaseAlgo):
     def destination_object(cls, v, values):
         """Get the correct Object based on the filename."""
         fname = values["input"].fileName
-        v.destination = get_object(fname, v.destination)
+        v.destination = get_object(fname, v.destination, values["input"].object_type)
         return v
 
 
@@ -404,16 +439,8 @@ class SecondOrderPerturbationTheoryAlgo(BaseAlgo):
 
 
 _ALGOS = {
-    "Read": ReadAlgo,
-    "Write": WriteAlgo,
-    "DefineHolesAndParticles": DefineHolesAndParticlesAlgo,
-    "SliceOperator": SliceOperatorAlgo,
-    "VertexCoulombIntegrals": VertexCoulombIntegralsAlgo,
-    "CoupledCluster": CoupledClusterAlgo,
-    "FiniteSizeCorrection": FiniteSizeCorrectionAlgo,
-    "BasisSetCorrection": BasisSetCorrectionAlgo,
-    "PerturbativeTriples": PerturbativeTriplesAlgo,
-    "SecondOrderPerturbationTheory": SecondOrderPerturbationTheoryAlgo,
+    algo_cls.__fields__["name"].default: algo_cls
+    for algo_cls in BaseAlgo.__subclasses__()
 }
 
 
@@ -428,9 +455,21 @@ _OBJECTS["DeltaIntegralsHH"] = DeltaIntegrals
 _OBJECTS["DeltaIntegralsPPHH"] = DeltaIntegrals
 
 
-def get_object(filename, destination):
-    """Get object from string."""
+def get_object(filename, destination, object_type=None):
+    """Get object from filename or string or a given type of Object."""
+    cls_ = _OBJECTS.get(object_type, None)
     fpath = Path(filename)
     fpath = fpath.with_suffix("")
-    cls_ = _OBJECTS[fpath.name]
+    cls_from_fpath = _OBJECTS.get(fpath.name, None)
+    if cls_ is None:
+        if cls_from_fpath is None:
+            raise AlgorithmInitializationError("Cannot figure out type of Object.")
+        cls_ = cls_from_fpath
+    else:
+        if cls_from_fpath is not None:
+            if cls_ != cls_from_fpath:
+                warnings.warn(
+                    "Type of Object from filename does not match provided type.",
+                    AlgorithmInitializationWarning,
+                )
     return cls_(destination)
