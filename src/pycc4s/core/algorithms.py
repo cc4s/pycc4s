@@ -265,6 +265,8 @@ class MyDumper(yaml.Dumper):
         """
         if isinstance(data, FName):
             return self.represent_scalar("tag:yaml.org,2002:str", data, style='"')
+        if isinstance(data, Object):
+            return self.represent_scalar("tag:yaml.org,2002:str", data, style="")
         return super().represent_data(data)
 
 
@@ -275,7 +277,7 @@ class ReadAlgo(BaseAlgo):
         """Schema for input of Read algorithm."""
 
         fileName: FName
-        object_type: Optional[str]
+        object_type: Optional[str] = Field(repr=False, exclude=True)
 
     class Output(InOutModel):
         """Schema for output of Read algorithm."""

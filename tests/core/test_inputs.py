@@ -1,4 +1,5 @@
 import pytest
+from monty.tempfile import ScratchDir
 
 from pycc4s.core.algorithms import (
     CoupledClusterAlgo,
@@ -35,3 +36,24 @@ class TestCC4SIn:
         cc4sin = CC4SIn.from_file(test_data_dir / "cc4s_invalid.in")
         with pytest.raises(ValueError):
             cc4sin.validate()
+
+    def test_to_file(self):
+        with ScratchDir("."):
+            cc4sin = CC4SIn(
+                algos=[
+                    ReadAlgo.from_filename("EigenEnergies.yaml"),
+                    DefineHolesAndParticlesAlgo.default(),
+                    WriteAlgo.from_object("SlicedEigenEnergies"),
+                ]
+            )
+            cc4sin.to_file()
+            cc4sin2 = CC4SIn(
+                algos=[
+                    ReadAlgo.from_filename("EigenEnergies.yaml"),
+                    DefineHolesAndParticlesAlgo.default(),
+                    WriteAlgo.from_object("EigenEnergies"),
+                ]
+            )
+            cc4sin_from_file = cc4sin.from_file()
+            assert cc4sin_from_file == cc4sin
+            assert cc4sin_from_file != cc4sin2

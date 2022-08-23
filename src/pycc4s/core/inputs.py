@@ -16,7 +16,7 @@ class CC4SIn(MSONable, BaseModel):
     algos: List[BaseAlgo]
 
     @classmethod
-    def from_file(cls, fname):
+    def from_file(cls, fname="cc4s.in"):
         """Construct CC4SIn from file."""
         with open(fname, "r") as f:
             dd = yaml.safe_load(f)
