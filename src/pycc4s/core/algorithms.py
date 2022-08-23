@@ -415,6 +415,9 @@ class BasisSetCorrectionAlgo(BaseAlgo):
         deltaIntegralsHH: DeltaIntegrals
         deltaIntegralsPPHH: DeltaIntegrals
 
+    class Output(InOutModel):
+        """Schema (empty) for output of BasisSetCorrection algorithm."""
+
 
 class PerturbativeTriplesAlgo(BaseAlgo):
     """PerturbativeTriples algorithm for CC4S."""
@@ -427,6 +430,9 @@ class PerturbativeTriplesAlgo(BaseAlgo):
         slicedEigenEnergies: SlicedEigenEnergies
         mp2PairEnergies: Mp2PairEnergies
 
+    class Output(InOutModel):
+        """Schema (empty) for output of PerturbativeTriples algorithm."""
+
 
 class SecondOrderPerturbationTheoryAlgo(BaseAlgo):
     """SecondOrderPerturbationTheory algorithm for CC4S."""
@@ -436,6 +442,9 @@ class SecondOrderPerturbationTheoryAlgo(BaseAlgo):
 
         coulombIntegrals: CoulombIntegrals
         slicedEigenEnergies: SlicedEigenEnergies
+
+    class Output(InOutModel):
+        """Schema (empty) for output of SecondOrderPerturbationTheory algorithm."""
 
 
 _ALGOS = {
