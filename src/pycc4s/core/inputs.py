@@ -1,44 +1,59 @@
 """Inputs for CC4S."""
+import json
 from importlib import import_module
 from typing import List
 
 import yaml  # type: ignore
-from monty.json import MSONable
-from monty.serialization import dumpfn
 from pydantic import BaseModel
+from pymatgen.io.core import InputFile
 
 from pycc4s.core.algorithms import BaseAlgo, MyDumper, Object, get_algo
 
 
-class CC4SIn(MSONable, BaseModel):
+class CC4SIn(InputFile, BaseModel):
     """Class used to represent the input for CC4S."""
 
     algos: List[BaseAlgo]
 
     @classmethod
-    def from_file(cls, fname="cc4s.in"):
-        """Construct CC4SIn from file."""
-        with open(fname, "r") as f:
-            dd = yaml.safe_load(f)
-            algos = [get_algo(algo_d) for algo_d in dd]
-            return cls(algos=algos)
+    def from_string(cls, string):
+        """Read CC4SIn from string."""
+        dd = yaml.safe_load(string)
+        algos = [get_algo(algo_d) for algo_d in dd]
+        return cls(algos=algos)
+
+    @classmethod
+    def from_file(cls, path="cc4s.in"):
+        """Construct CC4SIn object from file."""
+        return super().from_file(path)
+
+    def get_string(self) -> str:
+        """Get the string representation of the input."""
+        return self.to_string(fmt="yaml")
+
+    def to_string(self, fmt=None):
+        """Get a formatted string representation of the CC4SIn object.
+
+        For yaml format, a special Dumper is used to match the way cc4s
+        examples are provided.
+        """
+        fmt = fmt or "yaml"
+        if fmt == "yaml":
+            return yaml.dump(
+                self.dict(),
+                Dumper=MyDumper,
+                default_flow_style=False,
+                sort_keys=False,
+            )
+        else:
+            json.dumps(self.as_dict())
 
     def to_file(self, fname="cc4s.in", fmt=None):
         """Write CC4SIn to file."""
         if fmt is None and fname == "cc4s.in":
             fmt = "yaml"
-        if fmt == "yaml":
-            with open(fname, "w") as f:
-                yaml.dump(
-                    self.dict(),
-                    f,
-                    Dumper=MyDumper,
-                    default_flow_style=False,
-                    sort_keys=False,
-                )
-        else:
-            d = self.as_dict()
-            dumpfn(d, fname, fmt=fmt)
+        with open(fname, "w") as f:
+            f.write(self.to_string(fmt=fmt))
 
     def validate(self):
         """Validate the input.

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from monty.tempfile import ScratchDir
 
@@ -36,6 +38,17 @@ class TestCC4SIn:
         cc4sin = CC4SIn.from_file(test_data_dir / "cc4s_invalid.in")
         with pytest.raises(ValueError):
             cc4sin.validate()
+        with ScratchDir("."):
+            cc4sin = CC4SIn(
+                algos=[
+                    ReadAlgo.from_filename("EigenEnergies.yaml"),
+                    DefineHolesAndParticlesAlgo.default(),
+                    WriteAlgo.from_object("SlicedEigenEnergies"),
+                ]
+            )
+            cc4sin.write_file("cc4s.in")
+            cc4sin_from_file = CC4SIn.from_file()
+            assert cc4sin_from_file == cc4sin
 
     def test_to_file(self):
         with ScratchDir("."):
@@ -54,6 +67,19 @@ class TestCC4SIn:
                     WriteAlgo.from_object("EigenEnergies"),
                 ]
             )
+            assert Path("cc4s.in").exists()
             cc4sin_from_file = cc4sin.from_file()
             assert cc4sin_from_file == cc4sin
             assert cc4sin_from_file != cc4sin2
+
+    def test_write_file(self):
+        with ScratchDir("."):
+            cc4sin = CC4SIn(
+                algos=[
+                    ReadAlgo.from_filename("EigenEnergies.yaml"),
+                    DefineHolesAndParticlesAlgo.default(),
+                    WriteAlgo.from_object("SlicedEigenEnergies"),
+                ]
+            )
+            cc4sin.write_file("cc4s_test.in")
+            assert Path("cc4s_test.in").exists()
