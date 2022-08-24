@@ -294,6 +294,7 @@ class ReadAlgo(BaseAlgo):
 
     @classmethod
     def build(cls, filename, destination, object_type=None):
+        """Construct ReadAlgo from filename and destination."""
         return cls(input={"fileName": filename}, output={"destination": destination})
 
     @classmethod

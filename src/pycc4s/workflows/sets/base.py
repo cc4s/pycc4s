@@ -13,6 +13,7 @@ class CC4SInputSet(InputSet):
     """A class to represent a set of cc4s inputs."""
 
     def __init__(self, cc4sin, input_files=None, link_files=True):
+        """Construct CC4SInputSet."""
         self.input_files = input_files
         self.link_files = link_files
         super().__init__(
@@ -58,7 +59,7 @@ def copy_or_link(
 
     for prev_file, input_file in files:
         src_file = file_client.abspath(prev_file, host=src_host)
-        dest_file = os.path.join(dest_dir, input_file)
+        dest_file = Path(dest_dir, input_file)
         if link_files and src_host is None:
             file_client.link(src_file, dest_file)
         else:
