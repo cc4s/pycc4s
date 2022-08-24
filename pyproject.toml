@@ -1,23 +1,20 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools >= 63.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "pycc4s"
-version = "0.1.0"
 description = ""
-authors = ["David Waroquiers <david.waroquiers@gmail.com>"]
-
-[tool.poetry.dependencies]
-python = "^3.8"
-monty = "^2022.4.26"
-pymatgen = "^2022.7.25"
-
-[tool.poetry.extras]
-dev = ["pre-commit>=2.20.0"]
-tests = [
-    "pytest>=5.2",
-    "types-PyYAML>=6.0.11",
-    "pytest-mock==3.6.1",
-    "FireWorks==2.0.3",
+version = "0.1.0"
+authors = [{name = "David Waroquiers", email = "david.waroquiers@gmail.com"}]
+requires-python = '>="3.8"'
+dependencies = [
+    "monty>=2022.4.26"
 ]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project.optional-dependencies]
+dev = ["pre-commit>=2.20.0"]
+tests = [
+    "pytest>=7.1.2",
+    "types-PyYAML>=6.0.11",
+]
