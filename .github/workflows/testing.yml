@@ -22,9 +22,7 @@ jobs:
           pip install .[dev]
           pip install .[tests]
       - name: Lint
-        run: |
-          pre-commit validate-config
-          pre-commit run --all-files --show-diff-on-failure
+        run: pre-commit run --all-files --show-diff-on-failure
   test:
 
     runs-on: ubuntu-latest
