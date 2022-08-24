@@ -13,6 +13,7 @@ dependencies = [
     "pyyaml>=6.0",
     "pydantic>=1.9.2",
     "pymatgen>=2022.7.25",
+    "atomate2>=0.0.7",
 ]
 
 [project.optional-dependencies]

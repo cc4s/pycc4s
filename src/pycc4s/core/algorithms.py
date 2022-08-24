@@ -293,6 +293,10 @@ class ReadAlgo(BaseAlgo):
         return v
 
     @classmethod
+    def build(cls, filename, destination, object_type=None):
+        return cls(input={"fileName": filename}, output={"destination": destination})
+
+    @classmethod
     def from_filename(cls, filename):
         """Construct ReadAlgo from filename."""
         fpath = Path(filename).with_suffix("")
@@ -365,6 +369,17 @@ class SliceOperatorAlgo(BaseAlgo):
         # TODO: check here: is it always a SlicedCoulombVertex object ?
         slicedOperator: SlicedCoulombVertex
 
+    @classmethod
+    def default(cls):
+        """Construct default SliceOperatorAlgo with standard Object names."""
+        return cls(
+            input={
+                "slicedEigenEnergies": "SlicedEigenEnergies",
+                "operator": "CoulombVertex",
+            },
+            output={"slicedOperator": "SlicedCoulombVertex"},
+        )
+
 
 class VertexCoulombIntegralsAlgo(BaseAlgo):
     """VertexCoulombIntegrals algorithm for CC4S."""
@@ -380,6 +395,14 @@ class VertexCoulombIntegralsAlgo(BaseAlgo):
         """Schema for output of VertexCoulombIntegrals algorithm."""
 
         coulombIntegrals: CoulombIntegrals
+
+    @classmethod
+    def default(cls):
+        """Construct default VertexCoulombIntegralsAlgo with standard Object names."""
+        return cls(
+            input={"slicedCoulombVertex": "SlicedCoulombVertex"},
+            output={"coulombIntegrals": "CoulombIntegrals"},
+        )
 
 
 class CoupledClusterAlgo(BaseAlgo):
@@ -411,6 +434,24 @@ class CoupledClusterAlgo(BaseAlgo):
         """Schema for output of CoupledCluster algorithm."""
 
         amplitudes: Amplitudes
+
+    @classmethod
+    def default(cls):
+        """Construct default CoupledClusterAlgo."""
+        return cls(
+            input={
+                "slicedEigenEnergies": "SlicedEigenEnergies",
+                "coulombIntegrals": "CoulombIntegrals",
+                "slicedCoulombVertex": "SlicedCoulombVertex",
+                "method": "Ccsd",
+                "integralsSliceSize": 100,
+                "maxIterations": 20,
+                "energyConvergence": 1.0e-8,
+                "amplitudesConvergence": 1.0e-8,
+                "mixer": {"type": "DiisMixer", "maxResidua": 4},
+            },
+            output={"amplitudes": "Amplitudes"},
+        )
 
 
 class FiniteSizeCorrectionAlgo(BaseAlgo):
