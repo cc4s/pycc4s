@@ -9,7 +9,8 @@ version = "0.1.0"
 authors = [{name = "David Waroquiers", email = "david.waroquiers@gmail.com"}]
 requires-python = '>="3.8"'
 dependencies = [
-    "monty>=2022.4.26"
+    "monty>=2022.4.26",
+    "yaml>=6.0",
 ]
 
 [project.optional-dependencies]
