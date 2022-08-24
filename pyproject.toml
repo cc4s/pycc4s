@@ -12,6 +12,7 @@ dependencies = [
     "monty>=2022.4.26",
     "pyyaml>=6.0",
     "pydantic>=1.9.2",
+    "pymatgen>=2022.7.25",
 ]
 
 [project.optional-dependencies]
