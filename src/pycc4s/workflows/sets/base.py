@@ -40,6 +40,7 @@ class CC4SInputSet(InputSet):
         if self.input_files:
             copy_or_link(
                 files=self.input_files,
+                dest_dir=directory,
                 link_files=self.link_files,
             )
 
