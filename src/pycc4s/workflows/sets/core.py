@@ -23,8 +23,8 @@ class CoupledClusterGenerator(CC4SInputGenerator):
     def get_input_set(self, eigen_energies_filepath, coulomb_vertex_filepath, **kwargs):
         """Get CC4SInputSet."""
         algos = []
-        algos.append(ReadAlgo.from_filename("EigenEnergies.yaml"))
-        algos.append(ReadAlgo.from_filename("CoulombVertex.yaml"))
+        algos.append(ReadAlgo.from_filename("in/EigenEnergies.yaml"))
+        algos.append(ReadAlgo.from_filename("in/CoulombVertex.yaml"))
         algos.append(DefineHolesAndParticlesAlgo.default())
         algos.append(SliceOperatorAlgo.default())
         algos.append(VertexCoulombIntegralsAlgo.default())

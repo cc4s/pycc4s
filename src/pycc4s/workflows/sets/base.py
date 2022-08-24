@@ -111,6 +111,7 @@ class CC4SInputSet(InputSet):
         )
 
         if self.input_files:
+            Path("in").mkdir()
             copy_or_link_objects(
                 files=self.input_files,
                 dest_dir="in",
