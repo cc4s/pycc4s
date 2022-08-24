@@ -84,6 +84,19 @@ class CC4SIn(InputFile, BaseModel):
         """
         dd = super().dict(*args, **kwargs)
         dd = dd["algos"]
+
+        # We don't want to have null in the yaml file (can be misunderstood
+        # as an object by cc4s)
+        def stripNone(data):
+            if isinstance(data, dict):
+                return {
+                    k: stripNone(v)
+                    for k, v in data.items()
+                    if k is not None and v is not None
+                }
+            return data
+
+        dd = [stripNone(algo_d) for algo_d in dd]
         return dd
 
     def as_dict(self):

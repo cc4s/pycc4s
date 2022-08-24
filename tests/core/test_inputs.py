@@ -83,3 +83,14 @@ class TestCC4SIn:
             )
             cc4sin.write_file("cc4s_test.in")
             assert Path("cc4s_test.in").exists()
+
+    def test_dict(self):
+        cc4sin = CC4SIn(
+            algos=[
+                CoupledClusterAlgo.default(),
+            ]
+        )
+        dd = cc4sin.dict()
+        assert "linearized" not in dd[0]["in"]
+        assert "ratio" not in dd[0]["in"]["mixer"]
+        assert "initialAmplitudes" not in dd[0]["in"]
