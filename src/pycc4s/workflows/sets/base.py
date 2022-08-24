@@ -57,7 +57,7 @@ def copy_or_link(
     dest_dir = dest_dir or "."
     dest_dir = file_client.abspath(dest_dir, host=None)
 
-    for prev_file, input_file in files:
+    for prev_file, input_file in files.items():
         src_file = file_client.abspath(prev_file, host=src_host)
         dest_file = Path(dest_dir, input_file)
         if link_files and src_host is None:
