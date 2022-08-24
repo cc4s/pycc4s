@@ -126,12 +126,13 @@ class TestAlgorithms:
 
     def test_write_algo(self):
         algo = WriteAlgo(
-            input={"source": "CV"},
-            output={"fileName": "CoulombVertex.yaml"},
+            input={"source": "CV", "fileName": "CoulombVertex.yaml"},
+            output={},
         )
         assert isinstance(algo.input, WriteAlgo.Input)
         assert isinstance(algo.input.source, str)
-        assert isinstance(algo.output.fileName, FName)
+        assert isinstance(algo.input.fileName, FName)
+        assert algo.input.binary is None
         assert algo.name == "Write"
 
     def test_define_holes_and_particles_algo(self):

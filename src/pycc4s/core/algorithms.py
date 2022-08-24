@@ -317,18 +317,19 @@ class WriteAlgo(BaseAlgo):
 
         # TODO: deal with filename based on source type here
         source: str
+        fileName: FName
+        binary: Optional[int]
 
     class Output(InOutModel):
         """Schema for output of Write algorithm."""
 
         # TODO: deal with filename based on source type here
-        fileName: FName
 
     @classmethod
     def from_object(cls, object_name):
         """Construct WriteAlgo from Object name."""
         return cls(
-            input={"source": object_name}, output={"fileName": f"{object_name}.yaml"}
+            input={"source": object_name, "fileName": f"{object_name}.yaml"}, output={}
         )
 
 
