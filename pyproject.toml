@@ -20,3 +20,16 @@ tests = [
     "pytest>=7.1.2",
     "types-PyYAML>=6.0.11",
 ]
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 88
+max-doc-length = 88
+min-python-version = "3.8.0"
+docstring-convention = "google"
+
+[tool.mypy]
+ignore_missing_imports = true
+no_strict_optional = true
