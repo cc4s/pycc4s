@@ -20,6 +20,8 @@ def run_cc4s(
     custodian_kwargs=None,
 ):
     """Run cc4s."""
+    cc4s_job_kwargs = cc4s_job_kwargs or {}
+    custodian_kwargs = custodian_kwargs or {}
     cc4s_cmd = expandvars(cc4s_cmd)
     split_cc4s_cmd = shlex.split(cc4s_cmd)
     jobs = [CC4SJob(split_cc4s_cmd, **cc4s_job_kwargs)]
