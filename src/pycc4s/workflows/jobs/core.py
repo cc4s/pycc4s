@@ -7,7 +7,6 @@ from jobflow import job
 from pycc4s.custodian.jobs import OUTPUT_FILE_NAME
 from pycc4s.workflows.jobs.base import BaseCC4SMaker
 from pycc4s.workflows.run import run_cc4s
-from pycc4s.workflows.sets.base import CC4SInputGenerator
 from pycc4s.workflows.sets.core import CoupledClusterGenerator
 
 
@@ -15,7 +14,7 @@ from pycc4s.workflows.sets.core import CoupledClusterGenerator
 class CoupledClusterMaker(BaseCC4SMaker):
     """Maker for cc4s jobs."""
 
-    input_set_generator: CC4SInputGenerator = CoupledClusterGenerator()
+    input_set_generator: CoupledClusterGenerator = CoupledClusterGenerator()
 
     @job
     def make(self, eigen_energies_filepath, coulomb_vertex_filepath):
