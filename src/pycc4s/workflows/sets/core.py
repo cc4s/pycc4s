@@ -2,8 +2,10 @@
 from dataclasses import dataclass
 
 from pycc4s.core.algorithms import (
+    CoulombVertex,
     CoupledClusterAlgo,
     DefineHolesAndParticlesAlgo,
+    EigenEnergies,
     ReadAlgo,
     SliceOperatorAlgo,
     VertexCoulombIntegralsAlgo,
@@ -30,11 +32,11 @@ class CoupledClusterGenerator(CC4SInputGenerator):
         algos.append(VertexCoulombIntegralsAlgo.default())
         algos.append(CoupledClusterAlgo.default())
         cc4sin = CC4SIn(algos=algos)
-        input_files = {
-            eigen_energies_filepath: "EigenEnergies.yaml",
-            coulomb_vertex_filepath: "CoulombVertex.yaml",
+        objects_files = {
+            EigenEnergies: (eigen_energies_filepath, "EigenEnergies.yaml"),
+            CoulombVertex: (coulomb_vertex_filepath, "CoulombVertex.yaml"),
         }
         cc4s_input_set = CC4SInputSet(
-            cc4sin=cc4sin, input_files=input_files, link_files=True
+            cc4sin=cc4sin, objects_files=objects_files, link_files=True
         )
         return cc4s_input_set

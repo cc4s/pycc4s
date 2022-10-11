@@ -9,6 +9,8 @@ from atomate2.utils.file_client import FileClient as Atm2FileClient
 # from atomate2.utils.file_client import auto_fileclient
 from pymatgen.io.core import InputGenerator, InputSet
 
+from pycc4s.core.algorithms import get_object_cls
+
 CC4SIN_FILENAME = "cc4s.in"
 
 
@@ -85,15 +87,31 @@ def auto_fileclient(method=None):
 class CC4SInputSet(InputSet):
     """A class to represent a set of cc4s inputs."""
 
-    def __init__(self, cc4sin, input_files=None, link_files=True):
+    def __init__(self, cc4sin, objects_files=None, link_files=True):
         """Construct CC4SInputSet."""
-        self.input_files = input_files
+        self.objects_files = objects_files
         self.link_files = link_files
         super().__init__(
             inputs={
                 CC4SIN_FILENAME: cc4sin,
             }
         )
+
+    def as_dict(self):
+        """Get a JSON serializable dict representation of a CC4SInputSet object."""
+        d = super().as_dict()
+        d["object_files"] = {
+            obj_cls.__name__: filemap for obj_cls, filemap in d["object_files"].items()
+        }
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """Construct CC4SInputSet from a dict representation."""
+        d["object_files"] = {
+            get_object_cls(obj_clsname): filemap
+            for obj_clsname, filemap in d["object_files"].items()
+        }
 
     def write_input(
         self,
@@ -110,11 +128,11 @@ class CC4SInputSet(InputSet):
             zip_inputs=zip_inputs,
         )
 
-        if self.input_files:
+        if self.objects_files:
             indir = Path(directory, "in")
             indir.mkdir()
             copy_or_link_objects(
-                files=self.input_files,
+                files=self.objects_files,
                 dest_dir=indir,
                 link_files=self.link_files,
             )
@@ -149,21 +167,47 @@ def copy_or_link_objects(
     files, src_host=None, dest_dir=None, file_client=None, link_files=True
 ):
     """Copy or link external input files to the cc4s directory."""
+    # return
     dest_dir = dest_dir or "."
     dest_dir = file_client.abspath(dest_dir, host=None)
 
-    for prev_file, input_file in files.items():
+    for obj_cls, (prev_file, input_file) in files.items():
         prev_dir, prev_base = _object_dir_basename(prev_file)
         input_dir, input_base = _object_dir_basename(input_file)
         if input_dir != Path("."):
             raise ValueError(
                 "The input file should be a filename or a basename, not a path."
             )
-        for suffix in [".yaml", ".elements"]:
-            src_file = file_client.abspath(
-                Path(prev_dir, prev_base).with_suffix(suffix), host=src_host
+        # Main file (in principle .yaml, but can also deal with other extensions)
+        src_dest_files = [
+            (
+                file_client.abspath(
+                    Path(prev_dir, prev_base).with_suffix(obj_cls.ext), host=src_host
+                ),
+                Path(dest_dir, input_base).absolute().with_suffix(obj_cls.ext),
             )
-            dest_file = Path(dest_dir, input_file).absolute().with_suffix(suffix)
+        ]
+        # Tensor components files (.elements files)
+        elements_files = obj_cls.elements_files([prev_base, input_base])
+        elements_files = [
+            (
+                file_client.abspath(Path(prev_dir, prev_fname), host=src_host),
+                Path(dest_dir, input_fname).absolute(),
+            )
+            for prev_fname, input_fname in elements_files
+        ]
+        src_dest_files.extend(elements_files)
+        # Additional files
+        additional_files = obj_cls.additional_files([prev_base, input_base])
+        additional_files = [
+            (
+                file_client.abspath(Path(prev_dir, prev_fname), host=src_host),
+                Path(dest_dir, input_fname).absolute(),
+            )
+            for prev_fname, input_fname in additional_files
+        ]
+        src_dest_files.extend(additional_files)
+        for src_file, dest_file in src_dest_files:
             if link_files and src_host is None:
                 file_client.link(src_file, dest_file)
             else:

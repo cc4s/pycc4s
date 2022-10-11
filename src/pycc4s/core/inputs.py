@@ -68,7 +68,7 @@ class CC4SIn(InputFile, BaseModel):
                     if input_value not in objects:
                         raise ValueError(
                             f'"{input_value.__class__.__name__}" object with name '
-                            f'"{input_value.object_name()}" is needed as input for '
+                            f'"{input_value.object_name}" is needed as input for '
                             f'"{algo.name}" algorithm (#{ialgo+1}).'
                         )
             for _output_name, output_value in algo.output._iter():

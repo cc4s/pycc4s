@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from monty.tempfile import ScratchDir
 
+from pycc4s.core.algorithms import CoulombVertex
 from pycc4s.workflows.sets.base import _object_dir_basename, copy_or_link_objects
 
 
@@ -33,7 +34,8 @@ def test_copy_or_link_objects():
         Path("prevdir", "CoulombVertex.elements").touch()
         Path("indir").mkdir()
         copy_or_link_objects(
-            {"prevdir/SomeCoulombVertex.yaml": "CoulombVertex"}, dest_dir="indir"
+            {CoulombVertex: ("prevdir/SomeCoulombVertex.yaml", "CoulombVertex")},
+            dest_dir="indir",
         )
         assert Path("indir", "CoulombVertex.yaml").is_symlink()
         assert Path("indir", "CoulombVertex.elements").is_symlink()
