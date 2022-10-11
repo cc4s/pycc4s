@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from monty.tempfile import ScratchDir
 
-from pycc4s.core.algorithms import CoulombVertex
+from pycc4s.core.objects import CoulombVertex
 from pycc4s.workflows.sets.base import _object_dir_basename, copy_or_link_objects
 
 

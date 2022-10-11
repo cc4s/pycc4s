@@ -2,15 +2,14 @@
 from dataclasses import dataclass
 
 from pycc4s.core.algorithms import (
-    CoulombVertex,
     CoupledClusterAlgo,
     DefineHolesAndParticlesAlgo,
-    EigenEnergies,
     ReadAlgo,
     SliceOperatorAlgo,
     VertexCoulombIntegralsAlgo,
 )
 from pycc4s.core.inputs import CC4SIn
+from pycc4s.core.objects import CoulombVertex, EigenEnergies
 from pycc4s.workflows.sets.base import CC4SInputGenerator, CC4SInputSet
 
 

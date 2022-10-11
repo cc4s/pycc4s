@@ -9,7 +9,7 @@ from atomate2.utils.file_client import FileClient as Atm2FileClient
 # from atomate2.utils.file_client import auto_fileclient
 from pymatgen.io.core import InputGenerator, InputSet
 
-from pycc4s.core.algorithms import get_object_cls
+from pycc4s.core.objects import get_object_cls
 
 CC4SIN_FILENAME = "cc4s.in"
 

@@ -5,31 +5,33 @@ from pydantic import ValidationError
 
 from pycc4s.core.algorithms import (
     _ALGOS,
-    AlgorithmInitializationError,
-    AlgorithmInitializationWarning,
-    Amplitudes,
     BasisSetCorrectionAlgo,
+    CoupledClusterAlgo,
+    DefineHolesAndParticlesAlgo,
+    FiniteSizeCorrectionAlgo,
+    PerturbativeTriplesAlgo,
+    ReadAlgo,
+    SecondOrderPerturbationTheoryAlgo,
+    SliceOperatorAlgo,
+    VertexCoulombIntegralsAlgo,
+    WriteAlgo,
+)
+from pycc4s.core.objects import (
+    Amplitudes,
     CoulombIntegrals,
     CoulombPotential,
     CoulombVertex,
     CoulombVertexSingularVectors,
-    CoupledClusterAlgo,
-    DefineHolesAndParticlesAlgo,
     DeltaIntegrals,
     EigenEnergies,
-    FiniteSizeCorrectionAlgo,
     FName,
     GridVectors,
     Mp2PairEnergies,
-    PerturbativeTriplesAlgo,
-    ReadAlgo,
-    SecondOrderPerturbationTheoryAlgo,
     SlicedCoulombVertex,
     SlicedEigenEnergies,
-    SliceOperatorAlgo,
     StructureFactors,
-    VertexCoulombIntegralsAlgo,
-    WriteAlgo,
+    TensorObjectInitializationError,
+    TensorObjectInitializationWarning,
 )
 
 
@@ -162,7 +164,7 @@ class TestAlgorithms:
         assert isinstance(algo.input.fileName, FName)
         assert isinstance(algo.output.destination, CoulombVertex)
         assert algo.output.destination.object_name == "tada"
-        with pytest.raises(AlgorithmInitializationError):
+        with pytest.raises(TensorObjectInitializationError):
             ReadAlgo(
                 input={"fileName": "CoulombVertex2.yaml"},
                 output={"destination": "tada"},
@@ -176,7 +178,7 @@ class TestAlgorithms:
         assert algo.output.destination.object_name == "tada"
         assert algo.name == "Read"
 
-        with pytest.warns(AlgorithmInitializationWarning):
+        with pytest.warns(TensorObjectInitializationWarning):
             ReadAlgo(
                 input={
                     "fileName": "CoulombVertex.yaml",

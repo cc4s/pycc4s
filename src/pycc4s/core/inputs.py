@@ -7,7 +7,8 @@ import yaml  # type: ignore
 from pydantic import BaseModel
 from pymatgen.io.core import InputFile
 
-from pycc4s.core.algorithms import BaseAlgo, MyDumper, Object, get_algo
+from pycc4s.core.algorithms import BaseAlgo, MyDumper, get_algo
+from pycc4s.core.objects import Object
 
 
 class CC4SIn(InputFile, BaseModel):
