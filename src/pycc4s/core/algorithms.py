@@ -242,6 +242,8 @@ class CoulombIntegrals(Object):
 class CoulombPotential(Object):
     """Object class for Coulomb potential."""
 
+    additional_filenames = ("Momentum.yaml",)
+
 
 class CoulombVertex(Object):
     """Object class for Coulomb vertex."""
@@ -255,9 +257,16 @@ class CoulombVertex(Object):
 class CoulombVertexSingularVectors(Object):
     """Object class for Coulomb vertex singular vectors."""
 
+    additional_filenames = (
+        "Momentum.yaml",
+        "AuxiliaryField.yaml",
+    )
+
 
 class DeltaIntegrals(Object):
     """Object class for Delta integrals."""
+
+    additional_filenames = ("State.yaml",)
 
 
 class EigenEnergies(Object):
@@ -269,9 +278,13 @@ class EigenEnergies(Object):
 class GridVectors(Object):
     """Object class for grid vectors."""
 
+    additional_filenames = ("Momentum.yaml",)
+
 
 class Mp2PairEnergies(Object):
     """Object class for Mp2 pair energies."""
+
+    additional_filenames = ("State.yaml",)
 
 
 class SlicedCoulombVertex(Object):
@@ -288,13 +301,14 @@ class SlicedEigenEnergies(Object):
     elements_files_exts = tuple(".components.{}.elements".format(a) for a in "hp")
 
 
-# TODO: check here that structure factors are all the same objects
 class StructureFactors(Object):
     """Object class for structure factors."""
 
 
 class ResultDict(Object):
     """Object class for results."""
+
+    elements_files_exts = None
 
 
 class FName(str):
