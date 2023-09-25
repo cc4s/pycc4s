@@ -11,7 +11,7 @@ from pycc4s.workflows.sets.core import CoupledClusterGenerator
 
 
 @dataclass
-class CoupledClusterMaker(BaseCC4SMaker):
+class CoupledClusterCC4SMaker(BaseCC4SMaker):
     """Maker for cc4s jobs."""
 
     input_set_generator: CoupledClusterGenerator = CoupledClusterGenerator()
