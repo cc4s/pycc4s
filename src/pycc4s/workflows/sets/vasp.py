@@ -4,7 +4,7 @@ Note that this module will ultimately be moved to atomate2.
 """
 from dataclasses import dataclass
 
-from atomate2.vasp.sets.base import VaspInputSetGenerator
+from atomate2.vasp.sets.base import VaspInputGenerator
 from atomate2.vasp.sets.core import StaticSetGenerator
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
@@ -54,7 +54,7 @@ class StaticHFSetGenerator(StaticSetGenerator):
 
 
 @dataclass
-class NonSCFHFSetGenerator(VaspInputSetGenerator):
+class NonSCFHFSetGenerator(VaspInputGenerator):
     """Class to generate VASP non-self-consistent field Hartree-Fock input sets."""
 
     calc_type: str = "nonscf_hf"
@@ -110,7 +110,7 @@ class NonSCFHFSetGenerator(VaspInputSetGenerator):
 
 
 @dataclass
-class NonSCFMP2CBSSetGenerator(VaspInputSetGenerator):
+class NonSCFMP2CBSSetGenerator(VaspInputGenerator):
     """Class to generate VASP non-self-consistent field Hartree-Fock input sets."""
 
     calc_type: str = "nonscf_hf"
@@ -165,7 +165,7 @@ class NonSCFMP2CBSSetGenerator(VaspInputSetGenerator):
 
 
 @dataclass
-class NonSCFMP2NOsSetGenerator(VaspInputSetGenerator):
+class NonSCFMP2NOsSetGenerator(VaspInputGenerator):
     """Class to generate VASP non-self-consistent field Hartree-Fock input sets."""
 
     calc_type: str = "nonscf_hf"
@@ -220,7 +220,7 @@ class NonSCFMP2NOsSetGenerator(VaspInputSetGenerator):
 
 
 @dataclass
-class NonSCFHFNOsSetGenerator(VaspInputSetGenerator):
+class NonSCFHFNOsSetGenerator(VaspInputGenerator):
     """Class to generate VASP non-self-consistent field Hartree-Fock input sets."""
 
     calc_type: str = "nonscf_hf"
@@ -277,7 +277,7 @@ class NonSCFHFNOsSetGenerator(VaspInputSetGenerator):
 
 
 @dataclass
-class VaspDumpCc4sFilesGenerator(VaspInputSetGenerator):
+class VaspDumpCc4sFilesGenerator(VaspInputGenerator):
     """Class to generate input set for dumping cc4s files."""
 
     calc_type: str = "vasp_cc4s_dump"
